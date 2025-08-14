@@ -9,17 +9,60 @@ void generate_random_mac(int8 *mac){
       mac[5]=(rand()%256);
 }
 
-int change_mac(const char *ifname,int8 *mac){
+void change_mac(const char *ifname,int8 *mac){
    struct ifreq ifrr;
   
    
    int sockfd=socket(AF_INET,SOCK_DGRAM,0);
+   memset(&ifrr,0,sizeof(ifrr));    
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);
-   // mac_bytes=ether_aton(mac);
-   memcpy(ifrr.ifr_hwaddr.sa_data,mac,6);
-   ifrr.ifr_hwaddr.sa_family=ARPHRD_ETHER;
+ 
+   //if the interface is down ,it has to be turned up for its MAC to be changed
+   if(ioctl(sockfd,SIOCGIFFLAGS,&ifrr)<0){
 
-   int res=ioctl(sockfd,SIOCSIFHWADDR,&ifrr);
+      fprintf(stderr,"Error getting the interface flags: %s\n",strerror(errno));
+      exit(1);
+   }
    
-   return res;
+     
+      if(ifrr.ifr_flags & IFF_UP){
+         ifrr.ifr_flags &=~IFF_UP;
+
+         if(ioctl(sockfd,SIOCSIFFLAGS,&ifrr)<0){
+             fprintf(stderr,"Error bringing down the interface: %s\n",strerror(errno));
+             exit(1);
+         }
+         printf("Interface brought down successfully\n");
+         sleep(1);
+      }
+      
+   memset(&ifrr,0,sizeof(ifrr)); 
+   ifrr.ifr_hwaddr.sa_family=ARPHRD_ETHER;
+   strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);    
+   memcpy(ifrr.ifr_hwaddr.sa_data,mac,6);
+   if(ioctl(sockfd,SIOCSIFHWADDR,&ifrr)){
+      fprintf(stderr,"Error setting the new MAC address: %s\n",strerror(errno));
+      exit(1);
+   }
+   printf("MAC changed successfully\n");
+   sleep(1);
+
+   
+   //bring the interface back up
+   memset(&ifrr,0,sizeof(ifrr)); 
+   strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);  
+   if(!(ifrr.ifr_flags & IFF_UP)){
+       ifrr.ifr_flags |=IFF_UP;
+       if(ioctl(sockfd,SIOCSIFFLAGS,&ifrr)<0){
+          fprintf(stderr,"Error  bringing the interface up: %s\n",strerror(errno));
+          exit(1);
+       }
+      
+       printf("Interface brought up successfully\n");
+       sleep(1);
+
+   }
+
+   
+   
 }

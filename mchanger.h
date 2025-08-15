@@ -8,7 +8,9 @@
 #include <netinet/ether.h>
 #include<sys/socket.h>
 #include <sys/ioctl.h>
+#include<linux/ethtool.h>
 #include <errno.h>
+#include <linux/sockios.h>
 
 
 #define MACLEN 6
@@ -23,4 +25,7 @@ typedef uint64_t  uint64;
 
 
 void generate_random_mac(int8 *);
-void change_mac(const char *ifname,int8 *mac);
+void change_mac(int,const char *,int8 *);
+void get_permanet_mac(int,const char *);
+void bring_interface_down(int,const char*);
+void bring_interface_up(int,const char*);

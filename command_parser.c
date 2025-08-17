@@ -11,11 +11,15 @@ void parser(int argc,char *argv[]){
           {"permanent",no_argument,0,'P'},
           {"random",no_argument,0,'r'},
           {"status",no_argument,0,'s'},
+          {"down",no_argument,0,'d'},
+          {"up",no_argument,0,'u'},
           {"help",no_argument,0,'h'},
           {0,0,0,0}
    };
+
+   double_hyphen_for_long_opt_rule(argc-1,argv+1);
   
-   if(argc<2){
+   if(argc<=2){
         help();
    }
    
@@ -30,8 +34,8 @@ void parser(int argc,char *argv[]){
    int option;
     uint8 mac[MACLEN];
     srand(getpid());
-
-   while((option=getopt_long(argc-1,argv+1,"c:Rp:Prhs",long_options,NULL))!=-1){
+   
+   while((option=getopt_long(argc-1,argv+1,"c:Rp:Prhsdu",long_options,NULL))!=-1){
            switch(option){
                case 'c':
                     if(strcmp(optarg,"r")==0 || strcmp(optarg,"random")==0){
@@ -57,6 +61,7 @@ void parser(int argc,char *argv[]){
                       break;
                case 'P':
                      get_perm_address(sockfd,mac,(int8 *)ifname);
+                     printf("Permanent MAC for %s: ",ifname);
                      print_mac(mac);
                      break;
 
@@ -64,9 +69,11 @@ void parser(int argc,char *argv[]){
                       
                       if(strcmp(optarg,"c")==0 || strcmp(optarg,"current")==0){
                              get_temp_mac(sockfd,mac,(int8 *)ifname);
+                             printf("current MAC for %s: ",ifname);
                              print_mac(mac);
                       }else if(strcmp(optarg,"p")==0 || strcmp(optarg,"permanent")==0){
                               get_perm_address(sockfd,mac,(int8 *)ifname);
+                              printf("Permanent MAC for %s: ",ifname);
                               print_mac(mac);
                       }
                       break;
@@ -78,6 +85,14 @@ void parser(int argc,char *argv[]){
                         printf("DOWN\n");
                       }
                       break;
+
+               case 'd':
+                     bring_interface_down(sockfd,(const int8*)ifname);
+                     break;
+
+               case 'u':
+                     bring_interface_up(sockfd,(const int8*)ifname);
+                     break;
 
                case 'h':
                         help();
@@ -91,7 +106,7 @@ void parser(int argc,char *argv[]){
            }
    }
 
-//   get_permanet_mac(sockfd,ifname);                 
+              
   
 }
 
@@ -128,6 +143,22 @@ void parser_mac(char *str,uint8 mac[MACLEN]){
     sscanf(str,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",&mac[0],&mac[1],&mac[2],&mac[3],&mac[4],&mac[5]);
 }
 
+void double_hyphen_for_long_opt_rule(int argc,char *argv[]){
+     const char *long_opts[]={"help","random","up", "down","print","permanent","change","restore"};
+     for(int i=0;i<argc;i++){
+        
+         if(argv[i][0]=='-' && argv[i][1]!='-' && strlen(argv[i])>2){
+             int size=sizeof(long_opts)/sizeof(long_opts[0]);
+             for(int j=0;j<size;j++){
+                  if(strcmp(argv[i]+1,long_opts[j])==0){
+                      fprintf(stderr,"Invalid option %s .Did you mean --%s?\n",argv[i],long_opts[j]);
+                      exit(EXIT_FAILURE);
+                  }
+             }
+         }
+     }
+}
+
 void help(){
    printf("Usage: ./main <interface> [options]\n");
    printf("Options:\n");
@@ -136,6 +167,8 @@ void help(){
    printf("  -R, --restore          Restore original MAC\n");
    printf("  -p, --print [type]     Print MAC (optional type)\n");
    printf("  -P, --permanent        Use permanent MAC\n");
+   printf("  -d, --down             bring an interface down\n");
+   printf("  -u, --up               bring an interface up\n");
    printf("  -h, --help             Show this help message\n");
    exit(0);
 }

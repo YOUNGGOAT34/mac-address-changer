@@ -16,7 +16,7 @@
 #define MACLEN 6
 
 
-typedef unsigned char int8;
+typedef char int8;
 typedef uint16_t  uint16;
 typedef uint32_t  uint32;
 typedef uint8_t  uint8;
@@ -24,8 +24,12 @@ typedef uint64_t  uint64;
 
 
 
-void generate_random_mac(int8 *);
-void change_mac(int,const char *,int8 *);
-void get_permanet_mac(int,const char *);
-void bring_interface_down(int,const char*);
-void bring_interface_up(int,const char*);
+void print_mac(uint8 [MACLEN]) ;
+void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname);
+void get_temp_mac(int sockfd,uint8 mac[MACLEN],int8 *ifname);
+bool is_interface_up(int sockfd,int8 *ifname);
+void generate_random_mac(uint8 *);
+void change_mac(int,const int8 *,uint8 *);
+void reset_mac(int,const int8 *);
+void bring_interface_down(int,const int8*);
+void bring_interface_up(int,const int8*);

@@ -1,6 +1,6 @@
 #include "mchanger.h"
 
-void generate_random_mac(int8 *mac){
+void generate_random_mac(uint8 *mac){
       mac[0]=((rand()%256) & 0xFE) | 0x02;
       mac[1]=(rand()%256);
       mac[2]=(rand()%256);
@@ -9,7 +9,7 @@ void generate_random_mac(int8 *mac){
       mac[5]=(rand()%256);
 }
 
-void change_mac(int sockfd,const char *ifname,int8 *mac){
+void change_mac(int sockfd,const int8 *ifname,uint8 *mac){
    struct ifreq ifrr;
   
    
@@ -32,17 +32,24 @@ void change_mac(int sockfd,const char *ifname,int8 *mac){
 
 }
 
+void get_temp_mac(int sockfd,uint8 mac[MACLEN],int8 *ifname){
+   struct ifreq ifrr;
+   strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
 
+   if(ioctl(sockfd,SIOCGIFHWADDR,&ifrr)==-1){
+      fprintf(stderr,"Error retriving the current MAC: %s\n",strerror(errno));
+      exit(1);
+   }
+   memcpy(mac,ifrr.ifr_hwaddr.sa_data,MACLEN);
+}
 
-void get_permanet_mac(int sockfd,const char *ifname){
+void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname){
    struct ethtool_perm_addr *permanent_addr;
    struct ifreq ifrr;
-   permanent_addr=malloc(sizeof(struct ethtool_perm_addr *)+32);
+   permanent_addr=malloc(sizeof(struct ethtool_perm_addr )+32);
    permanent_addr->cmd=ETHTOOL_GPERMADDR;
    permanent_addr->size=32;
- 
-
-   
+    
    strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
    ifrr.ifr_data=(caddr_t)permanent_addr;
    
@@ -51,10 +58,51 @@ void get_permanet_mac(int sockfd,const char *ifname){
       free(permanent_addr);
       exit(1);
    }
+    
 
+   memcpy(mac,permanent_addr->data,MACLEN); 
+   free(permanent_addr);
+
+
+}
+
+bool is_interface_up(int sockfd,int8 *ifname){
+      struct ifreq ifrr;
+      strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
+
+      if(ioctl(sockfd,SIOCGIFFLAGS,&ifrr)==-1){
+         fprintf(stderr,"Error  retriving the interface flags : %s\n",strerror(errno));
+         exit(0);
+      }
+
+      return ((ifrr.ifr_flags & IFF_UP) && (ifrr.ifr_flags & IFF_RUNNING));
+}
+
+
+void print_mac(uint8 mac[MACLEN]) {
+   printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+          mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+
+void reset_mac(int sockfd,const int8 *ifname){
+   struct ethtool_perm_addr *permanent_addr;
+   struct ifreq ifrr;
+   permanent_addr=malloc(sizeof(struct ethtool_perm_addr )+32);
+   permanent_addr->cmd=ETHTOOL_GPERMADDR;
+   permanent_addr->size=32;
+    
+    
+   strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
+   ifrr.ifr_data=(caddr_t)permanent_addr;
+   
+   if(ioctl(sockfd,SIOCETHTOOL,&ifrr)==-1){
+      fprintf(stderr,"Error  retriving the original MAC: %s\n",strerror(errno));
+      free(permanent_addr);
+      exit(1);
+   }
+   
    
    bring_interface_down(sockfd,ifname);
-   
    memset(&ifrr,0,sizeof(ifrr)); 
    ifrr.ifr_hwaddr.sa_family=ARPHRD_ETHER;
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);    
@@ -76,7 +124,7 @@ void get_permanet_mac(int sockfd,const char *ifname){
 }
 
 
-void bring_interface_up(int sockfd,const char* ifname){
+void bring_interface_up(int sockfd,const int8 *ifname){
    struct ifreq ifrr;
    memset(&ifrr,0,sizeof(ifrr)); 
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);  
@@ -94,7 +142,7 @@ void bring_interface_up(int sockfd,const char* ifname){
 }
 
 
-void bring_interface_down(int sockfd,const char* ifname){
+void bring_interface_down(int sockfd,const int8 *ifname){
    struct ifreq ifrr;
    memset(&ifrr,0,sizeof(ifrr));    
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);

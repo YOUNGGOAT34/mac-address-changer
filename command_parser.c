@@ -3,7 +3,7 @@
 #include "command_parser.h"
 
 void parser(int argc,char *argv[]){
-
+ 
    static struct option long_options[]={
           {"change",required_argument,0,'c'},
           {"restore",no_argument,0,'R'},
@@ -13,22 +13,29 @@ void parser(int argc,char *argv[]){
           {"status",no_argument,0,'s'},
           {"down",no_argument,0,'d'},
           {"up",no_argument,0,'u'},
+          {"list",no_argument,0,'l'},
           {"help",no_argument,0,'h'},
           {0,0,0,0}
    };
 
-   double_hyphen_for_long_opt_rule(argc-1,argv+1);
-  
-   if(argc<=2){
+if(argc<2){
         help();
+ }
+
+if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-list")==0){
+      double_hyphen_for_long_opt_rule(argc,argv);
+      get_all_interfaces();
+      exit(EXIT_SUCCESS);
+   }else{
+      double_hyphen_for_long_opt_rule(argc-1,argv+1);
    }
-   
    
    int sockfd=socket(AF_INET,SOCK_DGRAM,0);
    if(sockfd<0){
       fprintf(stderr,"Socket creation failed\n");
       exit(1);
    }
+   
    const char *ifname=argv[1];
 
    int option;
@@ -93,6 +100,9 @@ void parser(int argc,char *argv[]){
                case 'u':
                      bring_interface_up(sockfd,(const int8*)ifname);
                      break;
+               case 'l':
+                      get_all_interfaces();
+                      break;
 
                case 'h':
                         help();
@@ -111,8 +121,33 @@ void parser(int argc,char *argv[]){
 }
 
 
+void get_all_interfaces(void){
+   struct ifaddrs *if_head,*current_iff;
+   char *seen[128];
+   int iff_count=0;
+   if(getifaddrs(&if_head)==-1){
+      fprintf(stderr,"Error getting available interfaces: %s\n",strerror(errno));
+      exit(EXIT_FAILURE);
+   }
 
-  bool validate_mac(char *mac){
+   for(current_iff=if_head;current_iff!=NULL;current_iff=current_iff->ifa_next){
+              if(current_iff->ifa_addr==NULL) continue;
+              int duplicate=0;
+               for(int i=0;i<iff_count;i++){
+                     if(strcmp(current_iff->ifa_name,seen[i])==0){
+                        duplicate+=1;
+                         break;
+                     }
+               }
+               
+               if(duplicate) continue;
+               seen[iff_count++]=current_iff->ifa_name;
+              printf("%s\n",current_iff->ifa_name);
+   }
+}
+
+
+bool validate_mac(char *mac){
     uint32 bytes[MACLEN];
     char temp;
     if(sscanf(mac,"%x:%x:%x:%x:%x:%x%c",&bytes[0],&bytes[1],&bytes[2],&bytes[3],
@@ -144,7 +179,7 @@ void parser_mac(char *str,uint8 mac[MACLEN]){
 }
 
 void double_hyphen_for_long_opt_rule(int argc,char *argv[]){
-     const char *long_opts[]={"help","random","up", "down","print","permanent","change","restore"};
+     const char *long_opts[]={"help","random","up", "down","print","permanent","change","restore","list"};
      for(int i=0;i<argc;i++){
         
          if(argv[i][0]=='-' && argv[i][1]!='-' && strlen(argv[i])>2){

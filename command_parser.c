@@ -32,7 +32,7 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
    
    int sockfd=socket(AF_INET,SOCK_DGRAM,0);
    if(sockfd<0){
-      fprintf(stderr,"Socket creation failed\n");
+      fprintf(stderr,RED"Socket creation failed\n"RESET);
       exit(1);
    }
    
@@ -53,7 +53,7 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                              parser_mac(optarg,mac);
                              change_mac(sockfd,ifname,mac);
                           }else{
-                            fprintf(stderr,"Invalid MAC address\n");
+                            fprintf(stderr,RED"Invalid MAC address\n"RESET);
                             exit(0);
                           }
                       }
@@ -68,7 +68,7 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                       break;
                case 'P':
                      get_perm_address(sockfd,mac,(int8 *)ifname);
-                     printf("Permanent MAC for %s: ",ifname);
+                     printf(GREEN"Permanent MAC for %s: "RESET,ifname);
                      print_mac(mac);
                      break;
 
@@ -76,20 +76,20 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                       
                       if(strcmp(optarg,"c")==0 || strcmp(optarg,"current")==0){
                              get_temp_mac(sockfd,mac,(int8 *)ifname);
-                             printf("current MAC for %s: ",ifname);
+                             printf(GREEN"current MAC for %s: "RESET,ifname);
                              print_mac(mac);
                       }else if(strcmp(optarg,"p")==0 || strcmp(optarg,"permanent")==0){
                               get_perm_address(sockfd,mac,(int8 *)ifname);
-                              printf("Permanent MAC for %s: ",ifname);
+                              printf(GREEN"Permanent MAC for %s: "RESET,ifname);
                               print_mac(mac);
                       }
                       break;
 
                case 's':
                       if(is_interface_up(sockfd,(int8 *)ifname)){
-                         printf("UP\n");
+                         printf(GREEN"UP\n"RESET);
                       }else{
-                        printf("DOWN\n");
+                        printf(RED"DOWN\n"RESET);
                       }
                       break;
 
@@ -109,7 +109,7 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                         break;
 
                default:
-                        fprintf(stderr, "Unknown option\n");
+                        fprintf(stderr,RED"Unknown option\n"RESET);
                         exit(EXIT_FAILURE);
                         break;
                
@@ -126,7 +126,7 @@ void get_all_interfaces(void){
    char *seen[128];
    int iff_count=0;
    if(getifaddrs(&if_head)==-1){
-      fprintf(stderr,"Error getting available interfaces: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error getting available interfaces: %s\n"RESET,strerror(errno));
       exit(EXIT_FAILURE);
    }
 
@@ -142,7 +142,7 @@ void get_all_interfaces(void){
                
                if(duplicate) continue;
                seen[iff_count++]=current_iff->ifa_name;
-              printf("%s\n",current_iff->ifa_name);
+              printf(GREEN"%s\n"RESET,current_iff->ifa_name);
    }
 }
 
@@ -186,7 +186,8 @@ void double_hyphen_for_long_opt_rule(int argc,char *argv[]){
              int size=sizeof(long_opts)/sizeof(long_opts[0]);
              for(int j=0;j<size;j++){
                   if(strcmp(argv[i]+1,long_opts[j])==0){
-                      fprintf(stderr,"Invalid option %s .Did you mean --%s?\n",argv[i],long_opts[j]);
+                      fprintf(stderr,RED"Invalid option %s .Did you mean --%s?\n"RESET,argv[i],long_opts[j]);
+                      
                       exit(EXIT_FAILURE);
                   }
              }

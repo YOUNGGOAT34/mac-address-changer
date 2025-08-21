@@ -23,6 +23,10 @@ typedef uint8_t  uint8;
 typedef uint64_t  uint64;
 
 
+#define RED   "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define RESET "\033[0m"
+
 
 void print_mac(uint8 [MACLEN]) ;
 void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname);

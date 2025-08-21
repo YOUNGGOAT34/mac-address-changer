@@ -21,10 +21,10 @@ void change_mac(int sockfd,const int8 *ifname,uint8 *mac){
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);    
    memcpy(ifrr.ifr_hwaddr.sa_data,mac,6);
    if(ioctl(sockfd,SIOCSIFHWADDR,&ifrr)){
-      fprintf(stderr,"Error setting the new MAC address: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error setting the new MAC address: %s\n"RESET,strerror(errno));
       exit(1);
    }
-   printf("MAC changed successfully\n");
+   printf(GREEN"MAC changed successfully\n"RESET);
    sleep(1);
 
 
@@ -37,7 +37,7 @@ void get_temp_mac(int sockfd,uint8 mac[MACLEN],int8 *ifname){
    strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
 
    if(ioctl(sockfd,SIOCGIFHWADDR,&ifrr)==-1){
-      fprintf(stderr,"Error retriving the current MAC: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error retriving the current MAC: %s\n"RESET,strerror(errno));
       exit(1);
    }
    memcpy(mac,ifrr.ifr_hwaddr.sa_data,MACLEN);
@@ -54,7 +54,7 @@ void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname){
    ifrr.ifr_data=(caddr_t)permanent_addr;
    
    if(ioctl(sockfd,SIOCETHTOOL,&ifrr)==-1){
-      fprintf(stderr,"Error  retriving the original MAC: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error  retriving the original MAC: %s\n"RESET,strerror(errno));
       free(permanent_addr);
       exit(1);
    }
@@ -71,7 +71,7 @@ bool is_interface_up(int sockfd,int8 *ifname){
       strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
 
       if(ioctl(sockfd,SIOCGIFFLAGS,&ifrr)==-1){
-         fprintf(stderr,"Error  retriving the interface flags : %s\n",strerror(errno));
+         fprintf(stderr,RED"Error  retriving the interface flags : %s\n"RESET,strerror(errno));
          exit(0);
       }
 
@@ -96,7 +96,7 @@ void reset_mac(int sockfd,const int8 *ifname){
    ifrr.ifr_data=(caddr_t)permanent_addr;
    
    if(ioctl(sockfd,SIOCETHTOOL,&ifrr)==-1){
-      fprintf(stderr,"Error  retriving the original MAC: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error  retriving the original MAC: %s\n"RESET,strerror(errno));
       free(permanent_addr);
       exit(1);
    }
@@ -109,12 +109,12 @@ void reset_mac(int sockfd,const int8 *ifname){
    memcpy(ifrr.ifr_hwaddr.sa_data,permanent_addr->data,6);
   
   if(ioctl(sockfd,SIOCSIFHWADDR,&ifrr)){
-      fprintf(stderr,"Error setting the back the old MAC address: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error setting the back the old MAC address: %s\n"RESET,strerror(errno));
       exit(1);
    }
 
 
-   printf("MAC restored successfully\n");
+   printf(GREEN"MAC restored successfully\n"RESET);
    sleep(1);
 
    bring_interface_up(sockfd,ifname);
@@ -131,11 +131,11 @@ void bring_interface_up(int sockfd,const int8 *ifname){
    if(!(ifrr.ifr_flags & IFF_UP)){
        ifrr.ifr_flags |=IFF_UP;
        if(ioctl(sockfd,SIOCSIFFLAGS,&ifrr)<0){
-          fprintf(stderr,"Error  bringing the interface up: %s\n",strerror(errno));
+          fprintf(stderr,RED"Error  bringing the interface up: %s\n"RESET,strerror(errno));
           exit(1);
        }
       
-       printf("Interface brought up successfully\n");
+       printf(GREEN"Interface brought up successfully\n"RESET);
        sleep(1);
 
    }
@@ -150,17 +150,17 @@ void bring_interface_down(int sockfd,const int8 *ifname){
    //if the interface is down ,it has to be turned up for its MAC to be changed
    if(ioctl(sockfd,SIOCGIFFLAGS,&ifrr)<0){
       
-      fprintf(stderr,"Error getting the interface flags: %s\n",strerror(errno));
+      fprintf(stderr,RED"Error getting the interface flags: %s\n"RESET,strerror(errno));
       exit(1);
    }
    
    if(ifrr.ifr_flags & IFF_UP){
          ifrr.ifr_flags &=~IFF_UP;
          if(ioctl(sockfd,SIOCSIFFLAGS,&ifrr)<0){
-             fprintf(stderr,"Error bringing down the interface: %s\n",strerror(errno));
+             fprintf(stderr,RED"Error bringing down the interface: %s\n"RESET,strerror(errno));
              exit(1);
          }
-         printf("Interface brought down successfully\n");
+         printf(GREEN"Interface brought down successfully\n"RESET);
          sleep(1);
       }
 

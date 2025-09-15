@@ -195,7 +195,7 @@ void double_hyphen_for_long_opt_rule(int argc,char *argv[]){
      }
 }
 
-void help(){
+void help(void){
    printf("Usage: ./main <interface> [options]\n");
    printf("Options:\n");
    printf("  -c, --change <MAC>     Change MAC address\n");

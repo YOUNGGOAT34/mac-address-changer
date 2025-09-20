@@ -59,7 +59,7 @@ void get_perm_address(i32 sockfd,u8 mac[MACLEN],i8 *ifname){
       exit(1);
    }
     
-
+   
    memcpy(mac,permanent_addr->data,MACLEN); 
    free(permanent_addr);
 

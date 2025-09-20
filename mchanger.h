@@ -30,11 +30,11 @@ typedef unsigned long  u64;
 
 
 void print_mac(u8 [MACLEN]) ;
-void get_perm_address(int sockfd,u8 mac[MACLEN],i8 *ifname);
-void get_temp_mac(int sockfd,u8 mac[MACLEN],i8 *ifname);
-bool is_interface_up(int sockfd,i8 *ifname);
+void get_perm_address(i32 sockfd,u8 mac[MACLEN],i8 *ifname);
+void get_temp_mac(i32 sockfd,u8 mac[MACLEN],i8 *ifname);
+bool is_interface_up(i32 sockfd,i8 *ifname);
 void generate_random_mac(u8 *);
-void change_mac(int,const i8 *,u8 *);
-void reset_mac(int,const i8 *);
-void bring_interface_down(int,const i8*);
-void bring_interface_up(int,const i8*);
+void change_mac(i32,const i8 *,u8 *);
+void reset_mac(i32,const i8 *);
+void bring_interface_down(i32,const i8*);
+void bring_interface_up(i32,const i8*);

@@ -30,7 +30,7 @@
 Clone the repository and run `make` to build the binary:  
 
 ```bash  
-git clone https://github.com/yourusername/netcloak.git  
+git clone https://github.com/younggoat34/netcloak.git  
 cd netcloak  
 make all  
 

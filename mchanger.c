@@ -1,6 +1,6 @@
 #include "mchanger.h"
 
-void generate_random_mac(uint8 *mac){
+void generate_random_mac(u8 *mac){
       mac[0]=((rand()%256) & 0xFE) | 0x02;
       mac[1]=(rand()%256);
       mac[2]=(rand()%256);
@@ -9,7 +9,7 @@ void generate_random_mac(uint8 *mac){
       mac[5]=(rand()%256);
 }
 
-void change_mac(int sockfd,const int8 *ifname,uint8 *mac){
+void change_mac(i32 sockfd,const i8 *ifname,u8 *mac){
    struct ifreq ifrr;
   
    
@@ -32,7 +32,7 @@ void change_mac(int sockfd,const int8 *ifname,uint8 *mac){
 
 }
 
-void get_temp_mac(int sockfd,uint8 mac[MACLEN],int8 *ifname){
+void get_temp_mac(i32 sockfd,u8 mac[MACLEN],i8 *ifname){
    struct ifreq ifrr;
    strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
 
@@ -43,7 +43,7 @@ void get_temp_mac(int sockfd,uint8 mac[MACLEN],int8 *ifname){
    memcpy(mac,ifrr.ifr_hwaddr.sa_data,MACLEN);
 }
 
-void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname){
+void get_perm_address(i32 sockfd,u8 mac[MACLEN],i8 *ifname){
    struct ethtool_perm_addr *permanent_addr;
    struct ifreq ifrr;
    permanent_addr=malloc(sizeof(struct ethtool_perm_addr )+32);
@@ -66,7 +66,7 @@ void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname){
 
 }
 
-bool is_interface_up(int sockfd,int8 *ifname){
+bool is_interface_up(i32 sockfd,i8 *ifname){
       struct ifreq ifrr;
       strncpy(ifrr.ifr_name,ifname,IFNAMSIZ-1);
 
@@ -79,12 +79,12 @@ bool is_interface_up(int sockfd,int8 *ifname){
 }
 
 
-void print_mac(uint8 mac[MACLEN]) {
+void print_mac(u8 mac[MACLEN]) {
    printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
-void reset_mac(int sockfd,const int8 *ifname){
+void reset_mac(i32 sockfd,const i8 *ifname){
    struct ethtool_perm_addr *permanent_addr;
    struct ifreq ifrr;
    permanent_addr=malloc(sizeof(struct ethtool_perm_addr )+32);
@@ -124,7 +124,7 @@ void reset_mac(int sockfd,const int8 *ifname){
 }
 
 
-void bring_interface_up(int sockfd,const int8 *ifname){
+void bring_interface_up(i32 sockfd,const i8 *ifname){
    struct ifreq ifrr;
    memset(&ifrr,0,sizeof(ifrr)); 
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);  
@@ -142,7 +142,7 @@ void bring_interface_up(int sockfd,const int8 *ifname){
 }
 
 
-void bring_interface_down(int sockfd,const int8 *ifname){
+void bring_interface_down(i32 sockfd,const i8 *ifname){
    struct ifreq ifrr;
    memset(&ifrr,0,sizeof(ifrr));    
    strncpy(ifrr.ifr_name,ifname,IF_NAMESIZE);

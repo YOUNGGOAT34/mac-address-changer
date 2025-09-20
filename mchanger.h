@@ -15,12 +15,13 @@
 
 #define MACLEN 6
 
+typedef char i8;
+typedef signed int i32;
 
-typedef char int8;
-typedef uint16_t  uint16;
-typedef uint32_t  uint32;
-typedef uint8_t  uint8;
-typedef uint64_t  uint64;
+typedef unsigned char u8;
+typedef unsigned short int  u16;
+typedef unsigned int  u32;
+typedef unsigned long  u64;
 
 
 #define RED   "\033[1;31m"
@@ -28,12 +29,12 @@ typedef uint64_t  uint64;
 #define RESET "\033[0m"
 
 
-void print_mac(uint8 [MACLEN]) ;
-void get_perm_address(int sockfd,uint8 mac[MACLEN],int8 *ifname);
-void get_temp_mac(int sockfd,uint8 mac[MACLEN],int8 *ifname);
-bool is_interface_up(int sockfd,int8 *ifname);
-void generate_random_mac(uint8 *);
-void change_mac(int,const int8 *,uint8 *);
-void reset_mac(int,const int8 *);
-void bring_interface_down(int,const int8*);
-void bring_interface_up(int,const int8*);
+void print_mac(u8 [MACLEN]) ;
+void get_perm_address(int sockfd,u8 mac[MACLEN],i8 *ifname);
+void get_temp_mac(int sockfd,u8 mac[MACLEN],i8 *ifname);
+bool is_interface_up(int sockfd,i8 *ifname);
+void generate_random_mac(u8 *);
+void change_mac(int,const i8 *,u8 *);
+void reset_mac(int,const i8 *);
+void bring_interface_down(int,const i8*);
+void bring_interface_up(int,const i8*);

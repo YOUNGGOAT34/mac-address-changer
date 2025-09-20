@@ -2,7 +2,7 @@
 #include <getopt.h>
 #include "command_parser.h"
 
-void parser(int argc,char *argv[]){
+void parser(i32 argc,i8 *argv[]){
  
    static struct option long_options[]={
           {"change",required_argument,0,'c'},
@@ -30,16 +30,16 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
       double_hyphen_for_long_opt_rule(argc-1,argv+1);
    }
    
-   int sockfd=socket(AF_INET,SOCK_DGRAM,0);
+   i32 sockfd=socket(AF_INET,SOCK_DGRAM,0);
    if(sockfd<0){
       fprintf(stderr,RED"Socket creation failed\n"RESET);
       exit(1);
    }
    
-   const char *ifname=argv[1];
+   const i8 *ifname=argv[1];
 
-   int option;
-    uint8 mac[MACLEN];
+   i32 option;
+    u8 mac[MACLEN];
     srand(getpid());
    
    while((option=getopt_long(argc-1,argv+1,"c:Rp:Prhsdu",long_options,NULL))!=-1){
@@ -67,7 +67,7 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                       reset_mac(sockfd,ifname);
                       break;
                case 'P':
-                     get_perm_address(sockfd,mac,(int8 *)ifname);
+                     get_perm_address(sockfd,mac,(i8 *)ifname);
                      printf(GREEN"Permanent MAC for %s: "RESET,ifname);
                      print_mac(mac);
                      break;
@@ -75,18 +75,18 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                case 'p':
                       
                       if(strcmp(optarg,"c")==0 || strcmp(optarg,"current")==0){
-                             get_temp_mac(sockfd,mac,(int8 *)ifname);
+                             get_temp_mac(sockfd,mac,(i8 *)ifname);
                              printf(GREEN"current MAC for %s: "RESET,ifname);
                              print_mac(mac);
                       }else if(strcmp(optarg,"p")==0 || strcmp(optarg,"permanent")==0){
-                              get_perm_address(sockfd,mac,(int8 *)ifname);
+                              get_perm_address(sockfd,mac,(i8 *)ifname);
                               printf(GREEN"Permanent MAC for %s: "RESET,ifname);
                               print_mac(mac);
                       }
                       break;
 
                case 's':
-                      if(is_interface_up(sockfd,(int8 *)ifname)){
+                      if(is_interface_up(sockfd,(i8 *)ifname)){
                          printf(GREEN"UP\n"RESET);
                       }else{
                         printf(RED"DOWN\n"RESET);
@@ -94,11 +94,11 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                       break;
 
                case 'd':
-                     bring_interface_down(sockfd,(const int8*)ifname);
+                     bring_interface_down(sockfd,(const i8*)ifname);
                      break;
 
                case 'u':
-                     bring_interface_up(sockfd,(const int8*)ifname);
+                     bring_interface_up(sockfd,(const i8*)ifname);
                      break;
                case 'l':
                       get_all_interfaces();
@@ -123,8 +123,8 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
 
 void get_all_interfaces(void){
    struct ifaddrs *if_head,*current_iff;
-   char *seen[128];
-   int iff_count=0;
+   i8 *seen[128];
+   i32 iff_count=0;
    if(getifaddrs(&if_head)==-1){
       fprintf(stderr,RED"Error getting available interfaces: %s\n"RESET,strerror(errno));
       exit(EXIT_FAILURE);
@@ -132,8 +132,8 @@ void get_all_interfaces(void){
 
    for(current_iff=if_head;current_iff!=NULL;current_iff=current_iff->ifa_next){
               if(current_iff->ifa_addr==NULL) continue;
-              int duplicate=0;
-               for(int i=0;i<iff_count;i++){
+              i32 duplicate=0;
+               for(i32 i=0;i<iff_count;i++){
                      if(strcmp(current_iff->ifa_name,seen[i])==0){
                         duplicate+=1;
                          break;
@@ -147,9 +147,9 @@ void get_all_interfaces(void){
 }
 
 
-bool validate_mac(char *mac){
-    uint32 bytes[MACLEN];
-    char temp;
+bool validate_mac(i8 *mac){
+    u32 bytes[MACLEN];
+    i8 temp;
     if(sscanf(mac,"%x:%x:%x:%x:%x:%x%c",&bytes[0],&bytes[1],&bytes[2],&bytes[3],
                                       &bytes[4],&bytes[5],&temp
    )==7){
@@ -174,17 +174,17 @@ bool validate_mac(char *mac){
     return true;
 }
 
-void parser_mac(char *str,uint8 mac[MACLEN]){
+void parser_mac(i8 *str,u8 mac[MACLEN]){
     sscanf(str,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",&mac[0],&mac[1],&mac[2],&mac[3],&mac[4],&mac[5]);
 }
 
-void double_hyphen_for_long_opt_rule(int argc,char *argv[]){
-     const char *long_opts[]={"help","random","up", "down","print","permanent","change","restore","list"};
-     for(int i=0;i<argc;i++){
+void double_hyphen_for_long_opt_rule(i32 argc,i8 *argv[]){
+     const i8 *long_opts[]={"help","random","up", "down","print","permanent","change","restore","list"};
+     for(i32 i=0;i<argc;i++){
         
          if(argv[i][0]=='-' && argv[i][1]!='-' && strlen(argv[i])>2){
-             int size=sizeof(long_opts)/sizeof(long_opts[0]);
-             for(int j=0;j<size;j++){
+             i32 size=sizeof(long_opts)/sizeof(long_opts[0]);
+             for(i32 j=0;j<size;j++){
                   if(strcmp(argv[i]+1,long_opts[j])==0){
                       fprintf(stderr,RED"Invalid option %s .Did you mean --%s?\n"RESET,argv[i],long_opts[j]);
                       

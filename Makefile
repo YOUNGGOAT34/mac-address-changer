@@ -6,7 +6,7 @@ BUILD_DIR :=build
 SRC := $(wildcard *.c)
 OBJECTS:=$(SRC:.c=.o)
 OBJECTS :=$(addprefix $(BUILD_DIR)/,$(OBJECTS))
-TARGET:=main
+TARGET:=netcloak
 all:clean $(TARGET)
 
 $(TARGET):$(OBJECTS)

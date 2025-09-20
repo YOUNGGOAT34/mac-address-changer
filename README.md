@@ -36,3 +36,13 @@ make all
 
 ```  
 
+The executable **netcloak** will be created in the project directory  
+
+## Usage:  
+
+```bash
+sudo ./netcloak <interface> [options]
+
+```
+
+

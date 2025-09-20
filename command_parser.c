@@ -50,7 +50,7 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
                          change_mac(sockfd,ifname,mac);
                       }else{
                           if(validate_mac(optarg)){
-                             parser_mac(optarg,mac);
+                             parse_mac(optarg,mac);
                              change_mac(sockfd,ifname,mac);
                           }else{
                             fprintf(stderr,RED"Invalid MAC address\n"RESET);
@@ -117,7 +117,6 @@ if(strcmp(argv[1],"-l")==0 || strcmp(argv[1],"--list")==0 || strcmp(argv[1],"-li
    }
 
               
-  
 }
 
 
@@ -174,7 +173,7 @@ bool validate_mac(i8 *mac){
     return true;
 }
 
-void parser_mac(i8 *str,u8 mac[MACLEN]){
+void parse_mac(i8 *str,u8 mac[MACLEN]){
     sscanf(str,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",&mac[0],&mac[1],&mac[2],&mac[3],&mac[4],&mac[5]);
 }
 

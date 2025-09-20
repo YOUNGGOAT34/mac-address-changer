@@ -3,7 +3,7 @@
 //ability to restore the original mac ??????????
 
 
-int main(int argc,char *argv[]){
+i32 main(int argc,char *argv[]){
      parser(argc,argv);
     return 0;
 }
